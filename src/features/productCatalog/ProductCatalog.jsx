@@ -1,7 +1,7 @@
 import Button from "../ui/button";
 import "../styles/productCatalog.css";
 import { useEffect, useState } from "react";
-import supabase from "../../supabaseClient";
+import supabase from "../../services/supabaseClient";
 
 export function ProductCatalog() {
   const [data, setData] = useState([]);
