@@ -13,8 +13,11 @@ export function ProductCatalog() {
   const [imgURL, setImgURL] = useState("");
   const [name, setName] = useState("");
   const [brand, setBrand] = useState("");
-  const [price, setPrice] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [mrp, setMrp] = useState(0);
+  const [hsnCode, setHsnCode] = useState("");
+  const [unitName, setUnitName] = useState("");
+  const [unitQty, setUnitQty] = useState(0);
+  const [itemQty, setItemQty] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
@@ -44,8 +47,7 @@ export function ProductCatalog() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (!imageData || !name || !brand || !price || !quantity)
-      return alert("Please fill the data");
+    if (!imageData || !name || !brand) return alert("Please fill the data");
 
     try {
       console.log("uploading started..");
@@ -72,7 +74,18 @@ export function ProductCatalog() {
 
       const { data: insertedRows, error: insertError } = await supabase
         .from("product_catalog")
-        .insert([{ name, brand, price, quantity, img_url: publicUrl }])
+        .insert([
+          {
+            name,
+            brand,
+            img_url: publicUrl,
+            mrp,
+            hsn_code: hsnCode,
+            unit_name: unitName,
+            unit_qty: unitQty,
+            item_qty: itemQty,
+          },
+        ])
         .select();
 
       if (insertError) throw insertError;
@@ -117,13 +130,38 @@ export function ProductCatalog() {
               />
               <input
                 type="number"
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="product price"
+                onChange={(e) => {
+                  setMrp(e.target.value);
+                }}
+                placeholder="product MRP"
               />
               <input
                 type="number"
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="product quantity"
+                onChange={(e) => {
+                  setHsnCode(e.target.value);
+                }}
+                placeholder="HSN Code"
+              />
+              <input
+                type="text"
+                onChange={(e) => {
+                  setUnitName(e.target.value);
+                }}
+                placeholder="box or pcs or pkt or jar"
+              />
+              <input
+                type="number"
+                onChange={(e) => {
+                  setUnitQty(e.target.value);
+                }}
+                placeholder="Qty of your unit in number"
+              />
+              <input
+                type="number"
+                onChange={(e) => {
+                  setItemQty(e.target.value);
+                }}
+                placeholder="how many of those units"
               />
             </div>
 
@@ -171,9 +209,11 @@ export function ProductCatalog() {
                 <img src={`${res.img_url}`} width={100} height={100} />
                 <h1>Name : {res.name}</h1>
                 <p>Brand : {res.brand}</p>
-                <p>Quantity : {res.quantity}</p>
-                <p>Price per item: {res.price}</p>
-                <p>Total Price : {res.quantity * res.price}</p>
+                <p>
+                  Quantity : {res.unit_qty} per {res.unit_name}
+                </p>
+                <p>MRP: {res.mrp}</p>
+                <p>Total MRP: {res.mrp * res.item_qty}</p>
               </div>
             );
           })

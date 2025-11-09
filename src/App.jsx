@@ -6,6 +6,7 @@ import { Dashboard } from "./features/dashBoard/Dashboard";
 import { Inventory } from "./features/inventory/Inventory";
 import { ProductCatalog } from "./features/productCatalog/ProductCatalog";
 import { GenerateBill } from "./features/generateBill/GenerateBill";
+// import { InvoiceFormat } from "./features/generateBill/invoiceFormat";
 
 function AppLayout() {
   return (
