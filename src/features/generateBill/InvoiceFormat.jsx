@@ -1,9 +1,17 @@
-import "./invFormat.css";
+import "../styles/generateBillStyles/invFormat.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 export function InvoiceFormat({ BillData }) {
-  const { billDetails, billItems } = BillData;
+  const {
+    sellerName,
+    sellerAddress,
+    sellerPhoneNo,
+    buyerName,
+    buyerAddress,
+    buyerPhoneNo,
+    billItems,
+  } = BillData;
 
   const totalPrice = billItems?.reduce(
     (acc, item) => acc + Number(item.rate) * Number(item.item_qty),
@@ -70,14 +78,14 @@ export function InvoiceFormat({ BillData }) {
       <div id="invoice-root" class="invoice-container">
         <div class="header">
           <div>
-            <h1>Receiver : {billDetails.buyer.name}</h1>
-            <p>Address : {billDetails.buyer.address} </p>
-            <p>Phone: </p>
+            <h1>Buyer : {buyerName}</h1>
+            <p>Address : {buyerAddress} </p>
+            <p>Phone: {buyerPhoneNo} </p>
           </div>
           <div>
-            <h1>Sender: {billDetails.seller.name}</h1>
-            <p>Address : {billDetails.seller.address}</p>
-            <p>Phone: </p>
+            <h1>Seller: {sellerName}</h1>
+            <p>Address : {sellerAddress}</p>
+            <p>Phone: {sellerPhoneNo}</p>
           </div>
         </div>
         <table>

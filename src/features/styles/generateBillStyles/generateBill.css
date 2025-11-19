@@ -1,0 +1,10 @@
+body {
+  background-color: #f8f7f6;
+  position: relative;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}

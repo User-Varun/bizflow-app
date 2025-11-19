@@ -1,5 +1,5 @@
 body {
-  background-color: yellow;
+  background-color: #f8f7f6;
   position: relative;
 }
 
@@ -10,8 +10,8 @@ body {
 }
 
 #container {
-  max-width: 1280px;
-  margin: 5rem auto;
+  max-width: 95vw;
+  margin: 2rem auto;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;

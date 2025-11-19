@@ -1,0 +1,103 @@
+#billDetails {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 60%;
+}
+
+#billDetails h1 {
+  text-align: center;
+  font-size: 2.6rem;
+  font-family: initial;
+  line-height: inherit;
+  letter-spacing: normal;
+}
+
+#billDetails form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.btn-temp {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.submitBtn {
+  background-color: #65b965;
+  padding: 0.8rem 0;
+  cursor: pointer;
+  color: white;
+  font-family: ui-monospace;
+  font-size: 1.4rem;
+  border-radius: 0.6rem;
+}
+
+#billItemsContainer {
+  background-color: #f8f7f6;
+  padding: 1rem;
+  border-radius: 0.4rem;
+  display: flex;
+  gap: 1rem;
+  height: 20vh;
+  border-width: 1px;
+  border-color: #ebe6e0;
+  align-items: center;
+  justify-content: center;
+}
+.emptyContainerMsg {
+  text-align: center;
+}
+
+.form-sub-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-sub-container2 {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-el-container {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.form-el-container span {
+  color: gray;
+  font-weight: bold;
+}
+
+.formEl {
+  background-color: #f8f7f6;
+  color: hsl(25 25% 15%);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  width: 25vw;
+  height: 5vh;
+  border-color: #ebe6e0;
+  border-width: 1px;
+}
+
+.formEl2 {
+  background-color: #f8f7f6;
+  color: hsl(25 25% 15%);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  width: 15vw;
+  height: 5vh;
+  border-color: #ebe6e0;
+  border-width: 1px;
+}
+
+.optionEl:hover {
+  background-color: #f5da89 !important;
+}

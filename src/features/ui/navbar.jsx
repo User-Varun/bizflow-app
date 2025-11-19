@@ -1,7 +1,9 @@
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import "../styles/navbar.css";
 
 export function Navbar() {
+  // const [activeTab, setActiveTab] = useState('dashboard');
+
   return (
     <nav id="nav">
       <a href="#" id="nav-logo">
@@ -9,18 +11,50 @@ export function Navbar() {
       </a>
 
       <ul id="nav-ul">
-        <Link className="list-item" to="/">
-          DashBoard
-        </Link>
-        <Link className="list-item" to="/inventory">
-          Inventory
-        </Link>
-        <Link className="list-item" to="/productCatalog">
-          ProductCatalog
-        </Link>
-        <Link className="list-item" to="/GenerateBill">
-          Generate Bill
-        </Link>
+        <NavLink
+          className="list-item "
+          style={({ isActive }) =>
+            isActive
+              ? { backgroundColor: "#5c3b23e6", color: "#fff" }
+              : { color: "black" }
+          }
+          to="/"
+        >
+          🏠 DashBoard
+        </NavLink>
+        <NavLink
+          style={({ isActive }) =>
+            isActive
+              ? { backgroundColor: "#5c3b23e6", color: "#fff" }
+              : { color: "black" }
+          }
+          className="list-item"
+          to="/inventory"
+        >
+          📦 Inventory
+        </NavLink>
+        <NavLink
+          style={({ isActive }) =>
+            isActive
+              ? { backgroundColor: "#5c3b23e6", color: "#fff !important" }
+              : { color: "black" }
+          }
+          className="list-item"
+          to="/productCatalog"
+        >
+          🗺️ ProductCatalog
+        </NavLink>
+        <NavLink
+          style={({ isActive }) =>
+            isActive
+              ? { backgroundColor: "#5c3b23e6", color: "#fff" }
+              : { color: "black" }
+          }
+          className="list-item"
+          to="/GenerateBill"
+        >
+          📃 Generate Bill
+        </NavLink>
       </ul>
     </nav>
   );

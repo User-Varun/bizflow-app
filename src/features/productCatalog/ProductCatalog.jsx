@@ -1,4 +1,3 @@
-import Button from "../ui/button";
 import "../styles/productCatalog.css";
 import { useEffect, useState } from "react";
 import supabase from "../../services/supabaseClient";
@@ -166,7 +165,7 @@ export function ProductCatalog() {
             </div>
 
             {/* Add your form fields here */}
-            <Button children={"Submit"} onClick={(e) => handleSubmit(e)} />
+            <button onClick={handleSubmit}>Submit</button>
             <button
               className="modal-close"
               onClick={toggleForm}
@@ -184,7 +183,7 @@ export function ProductCatalog() {
           <p>Mange your product catalog here</p>
         </div>
 
-        <Button onClick={toggleForm} children={"+ Add Product"} />
+        <button onClick={toggleForm}>+ Add Product</button>
       </section>
 
       <section id="searchAndFilter">
