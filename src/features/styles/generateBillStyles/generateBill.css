@@ -3,8 +3,10 @@ body {
   position: relative;
 }
 
-#container {
+#generateBillContainer {
   display: flex;
   flex-direction: row;
   width: 100%;
+  padding: 1rem 2rem;
+  gap: 1rem;
 }

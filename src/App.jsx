@@ -6,13 +6,18 @@ import { Dashboard } from "./features/dashBoard/Dashboard";
 import { Inventory } from "./features/inventory/Inventory";
 import { ProductCatalog } from "./features/productCatalog/ProductCatalog";
 import { GenerateBill } from "./features/generateBill/GenerateBill";
+import { BillProvider } from "./features/generateBill/contexts/billContext";
+import { SearchItemsProvider } from "./features/generateBill/contexts/searchItemsContext";
 // import { InvoiceFormat } from "./features/generateBill/invoiceFormat";
 
 function AppLayout() {
   return (
     <>
       <Navbar />
-      <Outlet />
+
+      <SearchItemsProvider>
+        <Outlet />
+      </SearchItemsProvider>
     </>
   );
 }
@@ -25,7 +30,14 @@ const router = createBrowserRouter([
       { index: true, Component: Dashboard },
       { path: "inventory", element: <Inventory /> },
       { path: "productCatalog", element: <ProductCatalog /> },
-      { path: "generateBill", element: <GenerateBill /> },
+      {
+        path: "generateBill",
+        element: (
+          <BillProvider>
+            <GenerateBill />,
+          </BillProvider>
+        ),
+      },
     ],
   },
 ]);

@@ -1,0 +1,41 @@
+.cardItem {
+  background-color: rgb(63, 62, 62);
+  color: white;
+  border-radius: 0.4rem;
+  padding: 0.5rem;
+  height: 40vh;
+  width: 15vw;
+  gap: 0.7rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardImg {
+  width: 100%;
+  height: auto;
+}
+
+.cardSubContainer {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1rem;
+}
+.itemCounterContainer {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.itemContainerBtn {
+  background-color: blue;
+  padding: 0.25rem;
+}
+.itemContainerField {
+  background-color: black;
+  padding: 0.25rem;
+}
+#nameAndBrand {
+  width: 100%;
+  white-space: nowrap; /* Prevent text from wrapping to next line */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis;
+}

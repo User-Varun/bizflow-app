@@ -1,6 +1,8 @@
 import "../styles/productCatalog.css";
 import { useEffect, useState } from "react";
 import supabase from "../../services/supabaseClient";
+import { SearchBar } from "../ui/searchBar";
+import { ProductCard } from "../ui/ProductCard";
 
 export function ProductCatalog() {
   const [data, setData] = useState([]);
@@ -17,6 +19,10 @@ export function ProductCatalog() {
   const [unitName, setUnitName] = useState("");
   const [unitQty, setUnitQty] = useState(0);
   const [itemQty, setItemQty] = useState(0);
+
+  // search query
+  const [searchQuery , setSearchQuery ] = useState('')
+
 
   useEffect(() => {
     async function fetchData() {
@@ -99,7 +105,7 @@ export function ProductCatalog() {
   }
   return (
     // add className for CSS fallback blur when modal is open
-    <section id="container">
+    <section id="prodCatalogContainer">
       {isOpen && (
         <div className="modal-overlay" onClick={toggleForm}>
           <div
@@ -177,43 +183,17 @@ export function ProductCatalog() {
         </div>
       )}
 
-      <section id="page-description">
-        <div>
-          <h1 id="heading">Product Catalog</h1>
-          <p>Mange your product catalog here</p>
-        </div>
+      <div id='innerHeader' >
 
-        <button onClick={toggleForm}>+ Add Product</button>
-      </section>
-
-      <section id="searchAndFilter">
-        <div id="search">
-          <a>go!</a>
-
-          <input type="text" id="input" placeholder="Search Products" />
-        </div>
-        <select id="filter">
-          <option>All Categories</option>
-          <option>something!</option>
-          <option>something!</option>
-          <option>something!</option>
-        </select>
-      </section>
+      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} widthInPercent={70} />
+      <button className="prodCBtn" onClick={toggleForm}>+ Add Product</button>
+      </div>
 
       <section id="productCatalogContainer">
         {data.length > 0 ? (
           data.map((res) => {
             return (
-              <div id="card" key={res.id || res.name}>
-                <img src={`${res.img_url}`} width={100} height={100} />
-                <h1>Name : {res.name}</h1>
-                <p>Brand : {res.brand}</p>
-                <p>
-                  Quantity : {res.unit_qty} per {res.unit_name}
-                </p>
-                <p>MRP: {res.mrp}</p>
-                <p>Total MRP: {res.mrp * res.item_qty}</p>
-              </div>
+              <ProductCard  res={res} key={res.id || res.name} />
             );
           })
         ) : (

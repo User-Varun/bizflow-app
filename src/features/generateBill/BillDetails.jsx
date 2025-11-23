@@ -1,36 +1,12 @@
 import supabase from "../../services/supabaseClient";
 
 import "../styles/generateBillStyles/billDetails.css";
+import { useBill } from "./hooks/useBill";
 
-export function BillDetails({
-  setShowBill,
-  billItems,
-  setBillItems,
-  billDetails,
-}) {
-  const {
-    billType,
-    sellerName,
-    sellerAddress,
-    sellerPhoneNo,
-    buyerName,
-    buyerAddress,
-    buyerPhoneNo,
-    cgst,
-    sgst,
-    setBillType,
-    setSellerName,
-    setSellerAddress,
-    setSellerPhoneNo,
-    setBuyerName,
-    setBuyerAddress,
-    setBuyerPhoneNo,
-    setCgst,
-    setSgst,
-  } = billDetails;
+export function BillDetails() {
+  const { state, dispatch } = useBill();
 
-  // This data Will co
-  // me from user Profile in future (when user auth is implemented )
+  // This data Will come from user Profile in future (when user auth is implemented )
   const mamaJiDetails = {
     name: "V.S. Enterprises",
     address: "667 lig 2nd scheme no. 71",
@@ -41,61 +17,33 @@ export function BillDetails({
     e.preventDefault();
 
     // if there's no items in bill, return
-    if (!billItems.length > 0) return;
+    if (!state.billItems.length > 0) return;
 
     // Auto Filling Mama ji's detail based on bill Type
-
-    // Calculating the current value to avoid Stale State
-    const form = e.currentTarget;
-    const currentBillType = form.billType.value;
-
-    let finalBuyerName = buyerName;
-    let finalBuyerAddress = buyerAddress;
-    let finalBuyerPhoneNo = buyerPhoneNo;
-
-    let finalSellerName = sellerName;
-    let finalSellerAddress = sellerAddress;
-    let finalSellerPhoneNo = sellerPhoneNo;
-
-    if (currentBillType === "Credit") {
-      finalSellerName = mamaJiDetails.name;
-      finalSellerAddress = mamaJiDetails.address;
-      finalSellerPhoneNo = mamaJiDetails.phoneNo;
-    } else {
-      finalBuyerName = mamaJiDetails.name;
-      finalBuyerAddress = mamaJiDetails.address;
-      finalBuyerPhoneNo = mamaJiDetails.phoneNo;
+    if (state.billType === "Credit") {
+      dispatch({
+        type: "SET_FIELDS",
+        payload: {
+          sellerName: mamaJiDetails.name,
+          sellerAddress: mamaJiDetails.address,
+          sellerPhoneNo: mamaJiDetails.phoneNo,
+        },
+      });
+    } else if (state.billType === "Debit") {
+      dispatch({
+        type: "SET_FIELDS",
+        payload: {
+          buyerName: mamaJiDetails.name,
+          buyerAddress: mamaJiDetails.address,
+          buyerPhoneNo: mamaJiDetails.phoneNo,
+        },
+      });
     }
 
-    // update state so the UI reflects the chosen values
-    setSellerName(finalSellerName);
-    setSellerAddress(finalSellerAddress);
-    setSellerPhoneNo(finalSellerPhoneNo);
-    setBuyerName(finalBuyerName);
-    setBuyerAddress(finalBuyerAddress);
-    setBuyerPhoneNo(finalBuyerPhoneNo);
-
-    // passing down the updated calculated value
-    handleSaveBill({
-      billType: currentBillType,
-      sellerName: finalSellerName,
-      sellerAddress: finalSellerAddress,
-      sellerPhoneNo: finalSellerPhoneNo,
-      buyerName: finalBuyerName,
-      buyerAddress: finalBuyerAddress,
-      buyerPhoneNo: finalBuyerPhoneNo,
-    }); // to Bill + Bill items table in the backend
+    handleSaveBill();
   }
 
-  async function handleSaveBill({
-    billType,
-    sellerName,
-    sellerAddress,
-    sellerPhoneNo,
-    buyerName,
-    buyerAddress,
-    buyerPhoneNo,
-  }) {
+  async function handleSaveBill() {
     try {
       // Save to Bill + Bill_items table in the database
 
@@ -103,27 +51,27 @@ export function BillDetails({
         .from("bills")
         .insert([
           {
-            bill_type: billType,
-            buyer_name: buyerName,
-            buyer_address: buyerAddress,
-            buyer_phone_no: buyerPhoneNo,
+            bill_type: state.billType,
+            buyer_name: state.buyerName,
+            buyer_address: state.buyerAddress,
+            buyer_phone_no: state.buyerPhoneNo,
 
-            seller_name: sellerName,
-            seller_address: sellerAddress,
-            seller_phone_no: sellerPhoneNo,
+            seller_name: state.sellerName,
+            seller_address: state.sellerAddress,
+            seller_phone_no: state.sellerPhoneNo,
 
-            cgst,
-            sgst,
+            cgst: state.cgst,
+            sgst: state.sgst,
           },
         ])
         .select();
 
       if (billDataError)
-        throw "error while saving in Bill Table (Generate Bill,  line no 95 ";
+        throw "error while saving in Bill Table (Generate Bill,  line no 95)";
 
       console.log("SuccessFully Saved Bill", billDataRes);
 
-      const itemsToSave = billItems.map((item) => {
+      const itemsToSave = state.billItems.map((item) => {
         console.log(item);
         return {
           bill_id: billDataRes[0].id,
@@ -154,17 +102,22 @@ export function BillDetails({
 
       console.log("SuccessFully Saved Bill items ", billItemsData);
 
-      // setting input fields to their initail values.
-      setBillType("Credit");
-      setBuyerName("");
-      setBuyerAddress("");
-      setBuyerPhoneNo("");
-      setSellerName("");
-      setSellerAddress("");
-      setSellerPhoneNo("");
-      setSgst("");
-      setCgst("");
-      setBillItems([]);
+      // setting input fields to their initial values.
+      // dispatch({
+      //   type: "SET_FIELDS",
+      //   payload: {
+      //     billType: "Credit",
+      //     buyerName: "",
+      //     buyerAddress: "",
+      //     buyerPhoneNo: "",
+      //     sellerName: "",
+      //     sellerAddress: "",
+      //     sellerPhoneNo: "",
+      //     cgst: "",
+      //     sgst: "",
+      //     billItems: [],
+      // },
+      // });
     } catch (err) {
       console.error(err);
     }
@@ -180,8 +133,13 @@ export function BillDetails({
             <select
               className="formEl"
               style={{}}
-              value={billType}
-              onChange={(e) => setBillType(e.target.value)}
+              value={state.billType}
+              onChange={(e) =>
+                dispatch({
+                  type: "SET_FIELDS",
+                  payload: { billType: e.target.value },
+                })
+              }
               name="billType"
             >
               <option className="optionEl" value="Credit">
@@ -200,11 +158,17 @@ export function BillDetails({
               required
               type="text"
               placeholder="e.g. arihant enterprises"
-              value={billType === "Credit" ? buyerName : sellerName}
+              value={
+                state.billType === "Credit" ? state.buyerName : state.sellerName
+              }
               onChange={(e) =>
-                billType === "Credit"
-                  ? setBuyerName(e.target.value)
-                  : setSellerName(e.target.value)
+                dispatch({
+                  type: "SET_FIELDS",
+                  payload:
+                    state.billType === "Credit"
+                      ? { buyerName: e.target.value }
+                      : { sellerName: e.target.value },
+                })
               }
             />
           </div>
@@ -218,11 +182,19 @@ export function BillDetails({
               required
               type="text"
               placeholder="e.g near navlakha road, indore"
-              value={billType === "Credit" ? buyerAddress : sellerAddress}
+              value={
+                state.billType === "Credit"
+                  ? state.buyerAddress
+                  : state.sellerAddress
+              }
               onChange={(e) =>
-                billType === "Credit"
-                  ? setBuyerAddress(e.target.value)
-                  : setSellerAddress(e.target.value)
+                dispatch({
+                  type: "SET_FIELDS",
+                  payload:
+                    state.billType === "Credit"
+                      ? { buyerAddress: e.target.value }
+                      : { sellerAddress: e.target.value },
+                })
               }
             />
           </div>
@@ -235,27 +207,33 @@ export function BillDetails({
               type="number"
               placeholder="e.g. XXXXX98260"
               maxLength={10}
-              value={billType === "Credit" ? buyerPhoneNo : sellerPhoneNo}
+              value={
+                state.billType === "Credit"
+                  ? state.buyerPhoneNo
+                  : state.sellerPhoneNo
+              }
               onChange={(e) =>
-                billType === "Credit"
-                  ? setBuyerPhoneNo(e.target.value)
-                  : setSellerPhoneNo(e.target.value)
+                dispatch({
+                  type: "SET_FIELDS",
+                  payload:
+                    state.billType === "Credit"
+                      ? { buyerPhoneNo: e.target.value }
+                      : { sellerPhoneNo: e.target.value },
+                })
               }
             />
           </div>
         </div>
 
         <div id="billItemsContainer">
-          {billItems && billItems.length > 0 ? (
-            billItems.map((item) => {
+          {state.billItems && state.billItems.length > 0 ? (
+            state.billItems.map((item) => {
               return (
-                <p
-                  style={{ backgroundColor: "orange", padding: "1rem" }}
-                  key={item.id}
-                >
-                  item : {item.name}, Quantity : {item.item_qty} , Rate :{" "}
-                  {item.rate}
-                </p>
+                <div className="billItemCard">
+                  <span>Item : {item.name}</span>
+                  <span>Quantity : {item.item_qty}</span>
+                  <span>Rate :{item.rate}</span>
+                </div>
               );
             })
           ) : (
@@ -272,10 +250,15 @@ export function BillDetails({
               <input
                 className="formEl2"
                 required
-                type="number"
+                type="text"
                 placeholder="2.5"
-                value={cgst}
-                onChange={(e) => setCgst(e.target.value)}
+                value={state.cgst}
+                onChange={(e) =>
+                  dispatch({
+                    type: "SET_FIELDS",
+                    payload: { cgst: e.target.value },
+                  })
+                }
               />
             </div>
             <div>
@@ -283,10 +266,15 @@ export function BillDetails({
               <input
                 className="formEl2"
                 required
-                type="number"
+                type="text"
                 placeholder="2.5"
-                value={sgst}
-                onChange={(e) => setSgst(e.target.value)}
+                value={state.sgst}
+                onChange={(e) =>
+                  dispatch({
+                    type: "SET_FIELDS",
+                    payload: { sgst: e.target.value },
+                  })
+                }
               />
             </div>
           </div>
@@ -296,7 +284,15 @@ export function BillDetails({
           Generate Bill
         </button>
       </form>
-      <button className="btn-temp" onClick={() => setShowBill((prev) => !prev)}>
+      <button
+        className="btn-temp"
+        onClick={() => {
+          dispatch({
+            type: "SET_FIELDS",
+            payload: { showBill: !state.showBill },
+          });
+        }}
+      >
         Show Generated Bill
       </button>
     </section>

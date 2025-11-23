@@ -41,16 +41,21 @@
   background-color: #f8f7f6;
   padding: 1rem;
   border-radius: 0.4rem;
-  display: flex;
-  gap: 1rem;
+  display: grid;
   height: 20vh;
+  gap: 2rem;
   border-width: 1px;
   border-color: #ebe6e0;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  grid-template-columns: auto auto auto auto;
 }
 .emptyContainerMsg {
   text-align: center;
+  width: 700px;
+  margin: 0 auto;
 }
 
 .form-sub-container {
@@ -100,4 +105,15 @@
 
 .optionEl:hover {
   background-color: #f5da89 !important;
+}
+
+.billItemCard{
+      display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        background-color: orange;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        height: 15vh;
+        width : 15vw;
 }

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import supabase from "../../services/supabaseClient";
+import { ProductCard } from "../ui/ProductCard";
+
+import '../styles/inventory.css'
 
 export function Inventory() {
   const [inventory, setInventory] = useState([]);
@@ -22,18 +25,23 @@ export function Inventory() {
   }, []);
 
   return (
-    <div>
-      <h1>Inventory</h1>
+    <div id="inventoryContainer" >
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
+       
+      {inventory.length === 0 ? <h1 style={{ paddingLeft : "30vw"}}>INVENTORY EMPTY!  <em>
+        create bills and watch them gets updated here :)
+      </em>
+      </h1> 
+      
+        :
 
-      <ul>
-        {inventory.map((item) => (
-          <li key={item.id}>
-            {item.name} — {item.qty}
-            <p>{item.price_per_unit}</p>
-          </li>
-        ))}
-      </ul>
+      
+      
+      inventory.map((res) => (
+        <ProductCard res={res} key={res.id || res.name} />
+      ))
+    }
+      
     </div>
   );
 }

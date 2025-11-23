@@ -1,23 +1,15 @@
 import "../styles/generateBillStyles/invFormat.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useBill } from "./hooks/useBill";
 
-export function InvoiceFormat({ BillData }) {
-  const {
-    sellerName,
-    sellerAddress,
-    sellerPhoneNo,
-    buyerName,
-    buyerAddress,
-    buyerPhoneNo,
-    billItems,
-  } = BillData;
+export function InvoiceFormat() {
+  const { state } = useBill();
 
-  const totalPrice = billItems?.reduce(
+  const totalPrice = state.billItems?.reduce(
     (acc, item) => acc + Number(item.rate) * Number(item.item_qty),
     0
   );
-  console.log(BillData);
 
   async function handleDownloadPDF() {
     const el = document.getElementById("invoice-root");
@@ -75,17 +67,17 @@ export function InvoiceFormat({ BillData }) {
 
   return (
     <>
-      <div id="invoice-root" class="invoice-container">
-        <div class="header">
+      <div id="invoice-root" className="invoice-container">
+        <div className="header">
           <div>
-            <h1>Buyer : {buyerName}</h1>
-            <p>Address : {buyerAddress} </p>
-            <p>Phone: {buyerPhoneNo} </p>
+            <h1>Buyer : {state.buyerName}</h1>
+            <p>Address : {state.buyerAddress} </p>
+            <p>Phone: {state.buyerPhoneNo} </p>
           </div>
           <div>
-            <h1>Seller: {sellerName}</h1>
-            <p>Address : {sellerAddress}</p>
-            <p>Phone: {sellerPhoneNo}</p>
+            <h1>Seller: {state.sellerName}</h1>
+            <p>Address : {state.sellerAddress}</p>
+            <p>Phone: {state.sellerPhoneNo}</p>
           </div>
         </div>
         <table>
@@ -98,8 +90,8 @@ export function InvoiceFormat({ BillData }) {
             </tr>
           </thead>
           <tbody>
-            {billItems ? (
-              billItems.map((item) => {
+            {state.billItems ? (
+              state.billItems.map((item) => {
                 return (
                   <tr key={item.id}>
                     <td>{item.name}</td>
@@ -114,8 +106,8 @@ export function InvoiceFormat({ BillData }) {
             )}
           </tbody>
         </table>
-        <p class="total">Grand Total: ₹{totalPrice}</p>
-        <div class="footer">
+        <p className="total">Grand Total: ₹{totalPrice}</p>
+        <div className="footer">
           <p>Thank you for shopping with us!</p>
         </div>
       </div>
