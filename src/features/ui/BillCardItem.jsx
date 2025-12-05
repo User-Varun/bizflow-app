@@ -1,8 +1,11 @@
+import { useRef } from "react";
 import { useBill } from "../generateBill/hooks/useBill";
 import { useSearchItems } from "../generateBill/hooks/useSearchItems";
 import "../styles/cardItem.css";
 
 export function BillCardItem({ res }) {
+  const rateElRef = useRef(null);
+
   const { state: searchItemsState, dispatch: searchItemsDispatch } =
     useSearchItems();
   const { state: billState, dispatch: billDispatch } = useBill();
@@ -59,7 +62,7 @@ export function BillCardItem({ res }) {
   }
 
   return (
-    <div className="cardItem">
+    <div className="cardItem" key={res.id || res.name}>
       <img src={`${res.img_url}`} className="cardImg" />
       <span id="nameAndBrand">
         {res.name} by {res.brand}
@@ -98,24 +101,32 @@ export function BillCardItem({ res }) {
           </button>
         </div>
 
-        <input
-          type="number"
-          placeholder="rate.."
-          value={searchItemsState.rate?.[res.id] ?? ""}
-          onChange={(e) =>
-            searchItemsDispatch({
-              type: "SET_RATE",
-              payload: { id: res.id, inputFieldValue: e.target.value },
-            })
-          }
-          style={{ width: "5rem", border: "1px solid white" }}
-        />
+        <div>
+          <span>Rate </span>
+          <input
+            ref={rateElRef}
+            type="number"
+            placeholder="0"
+            value={searchItemsState.rate?.[res.id] ?? ""}
+            onChange={(e) =>
+              searchItemsDispatch({
+                type: "SET_RATE",
+                payload: { id: res.id, inputFieldValue: e.target.value },
+              })
+            }
+            onMouseLeave={() => {
+              if (rateElRef.current) rateElRef.current.blur(); // Remove focus from the input
+            }}
+            className="rate-input"
+          />
+        </div>
       </div>
       <button
         data-id={res.id}
         style={{
           backgroundColor: "blue",
           padding: "0.25rem",
+          cursor: "pointer",
         }}
         onClick={(e) => handleAddItem(e)}
       >

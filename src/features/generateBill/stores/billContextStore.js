@@ -14,12 +14,16 @@ export const initialState = {
   sgst: "",
   billItems: [],
   showBill: false,
+  isSubmitting: false,
+  invoiceSnapshot: null,
 };
 
 export function reducerFn(state, action) {
   switch (action.type) {
     case "SET_FIELDS":
       return { ...state, ...action.payload };
+    case "SET_SNAPSHOT":
+      return { ...state, invoiceSnapshot: action.payload };
     case "UPDATE_BILL_ITEM": {
       return { ...state, billItems: action.payload.billToUpdate };
     }

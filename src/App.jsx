@@ -8,6 +8,8 @@ import { ProductCatalog } from "./features/productCatalog/ProductCatalog";
 import { GenerateBill } from "./features/generateBill/GenerateBill";
 import { BillProvider } from "./features/generateBill/contexts/billContext";
 import { SearchItemsProvider } from "./features/generateBill/contexts/searchItemsContext";
+import { InvoiceFormat } from "./features/generateBill/InvoiceFormat";
+import { ViewBills } from "./features/viewBills/ViewBills";
 // import { InvoiceFormat } from "./features/generateBill/invoiceFormat";
 
 function AppLayout() {
@@ -37,6 +39,19 @@ const router = createBrowserRouter([
             <GenerateBill />,
           </BillProvider>
         ),
+      },
+      {
+        path: "invoice",
+        element: (
+          <BillProvider>
+            <InvoiceFormat />
+          </BillProvider>
+        ),
+      },
+
+      {
+        path: "viewBills",
+        element: <ViewBills />,
       },
     ],
   },

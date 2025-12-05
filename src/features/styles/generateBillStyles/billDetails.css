@@ -107,13 +107,17 @@
   background-color: #f5da89 !important;
 }
 
-.billItemCard{
-      display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-        background-color: orange;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        height: 15vh;
-        width : 15vw;
+.billItemCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background-color: orange;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  height: 15vh;
+  width: 15vw;
+}
+
+.btn-disabled {
+  background-color: gray;
 }

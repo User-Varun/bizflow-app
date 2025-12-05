@@ -17,8 +17,9 @@
 
 .cardSubContainer {
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  align-items: center;
 }
 .itemCounterContainer {
   display: flex;
@@ -27,15 +28,30 @@
 
 .itemContainerBtn {
   background-color: blue;
-  padding: 0.25rem;
+  padding: 4px 9px;
+  border-radius: 4.2px;
+  cursor: pointer;
 }
 .itemContainerField {
-  background-color: black;
-  padding: 0.25rem;
+  background-color: white !important;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: black !important;
+  font-weight: bold;
 }
 #nameAndBrand {
   width: 100%;
   white-space: nowrap; /* Prevent text from wrapping to next line */
   overflow: hidden; /* Hide overflowing text */
   text-overflow: ellipsis;
+}
+
+.rate-input {
+  width: 3.9rem;
+  border: 1px solid white;
+  background-color: white;
+  color: black;
+  font-weight: bold;
+  border-radius: 3.3px;
+  padding: 0 4px;
 }

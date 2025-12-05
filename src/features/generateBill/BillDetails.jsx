@@ -1,73 +1,218 @@
+import { useNavigate } from "react-router";
 import supabase from "../../services/supabaseClient";
-
 import "../styles/generateBillStyles/billDetails.css";
 import { useBill } from "./hooks/useBill";
 
 export function BillDetails() {
   const { state, dispatch } = useBill();
 
-  // This data Will come from user Profile in future (when user auth is implemented )
-  const mamaJiDetails = {
-    name: "V.S. Enterprises",
-    address: "667 lig 2nd scheme no. 71",
-    phoneNo: 9229665110,
-  };
+  const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
-    // if there's no items in bill, return
-    if (!state.billItems.length > 0) return;
+    if (state.isSubmitting) return console.log("duplicate"); // prevent double submissions
 
+    if (state.billItems.length <= 0) return;
+
+    // gather mamaJi data (This data Will come from user Profile in future, when user auth is implemented )
+    const mamaJi = {
+      name: "V.S. Enterprises",
+      address: "667 lig 2nd scheme no. 71",
+      phoneNo: 9229665110,
+    };
+
+    // get user-entered party input BEFORE changing billType
+    const partyInput = {
+      name: state.billType === "Credit" ? state.buyerName : state.sellerName,
+      address:
+        state.billType === "Credit" ? state.buyerAddress : state.sellerAddress,
+      phoneNo:
+        state.billType === "Credit" ? state.buyerPhoneNo : state.sellerPhoneNo,
+    };
+
+    // build finalObject WITHOUT depending on dispatched state
+    const finalBill = {
+      billType: state.billType,
+      buyerName: state.billType === "Credit" ? partyInput.name : mamaJi.name,
+      buyerAddress:
+        state.billType === "Credit" ? partyInput.address : mamaJi.address,
+      buyerPhoneNo:
+        state.billType === "Credit" ? partyInput.phoneNo : mamaJi.phoneNo,
+
+      sellerName: state.billType === "Debit" ? partyInput.name : mamaJi.name,
+      sellerAddress:
+        state.billType === "Debit" ? partyInput.address : mamaJi.address,
+      sellerPhoneNo:
+        state.billType === "Debit" ? partyInput.phoneNo : mamaJi.phoneNo,
+
+      cgst: state.cgst,
+      sgst: state.sgst,
+    };
+
+    // now save with guaranteed correct data
+    dispatch({
+      type: "SET_FIELDS",
+      payload: { isSubmitting: true },
+    });
+    try {
+      await saveBillToDB(finalBill);
+
+      navigate("/invoice");
+    } catch (err) {
+      console.error("Error saving bill:", err);
+    } finally {
+      dispatch({
+        type: "SET_FIELDS",
+        payload: { isSubmitting: false },
+      });
+    }
+  }
+
+  async function handleUpdateInventory(data) {
+    try {
+      const hsnCodes = data.map((item) => item.hsn_code);
+
+      const itemsToUpdate = [];
+      const itemsToInsert = [];
+
+      // 1. Fetch existing inventory entries
+      const { data: existingItems, error: fetchError } = await supabase
+        .from("inventory")
+        .select("id , hsn_code , item_qty")
+        .in("hsn_code", hsnCodes);
+
+      if (fetchError) throw fetchError;
+
+      // 2. Catergories data
+      data.forEach((item) => {
+        const match = existingItems.find((i) => i.hsn_code === item.hsn_code);
+
+        if (match) {
+          // the item already exists in the inventory , just update it's quantity
+          itemsToUpdate.push({
+            id: match.id,
+            item_qty: match.item_qty + item.item_qty,
+          });
+        } else {
+          // otherwise create a record in inventory table
+          itemsToInsert.push({
+            name: item.name,
+            brand: item.brand,
+            mrp: item.mrp,
+            item_qty: item.item_qty,
+            hsn_code: item.hsn_code,
+            img_url: item.img_url,
+            unit_name: item.unit_name,
+            unit_qty: item.unit_qty,
+          });
+        }
+      });
+
+      // 3. insert the new inventory records
+      if (itemsToInsert.length > 0) {
+        const { error: insertError } = await supabase
+          .from("inventory")
+          .insert(itemsToInsert);
+
+        if (insertError) throw insertError;
+      }
+
+      // 4. update the existing records
+      for (const item of itemsToUpdate) {
+        const { error: updateError } = await supabase
+          .from("inventory")
+          .update({ item_qty: item.item_qty })
+          .eq("id", item.id);
+
+        if (updateError) throw updateError;
+      }
+
+      console.log("Inventory updated successfully");
+    } catch (err) {
+      console.error(
+        err,
+        "error occured in BillDetails at handleUpdateInventory"
+      );
+    }
+  }
+
+  function handleBillTypeChange(selectedType) {
     // Auto Filling Mama ji's detail based on bill Type
-    if (state.billType === "Credit") {
+
+    dispatch({
+      type: "SET_FIELDS",
+      payload: { billType: selectedType },
+    });
+
+    const mamaJiDetails = {
+      name: "V.S. Enterprises",
+      address: "667 lig 2nd scheme no. 71",
+      phoneNo: 9229665110,
+    };
+
+    // Preserve user-entered data
+    const userData = {
+      name: selectedType === "Credit" ? state.buyerName : state.sellerName,
+      address:
+        selectedType === "Credit" ? state.buyerAddress : state.sellerAddress,
+      phoneNo:
+        selectedType === "Credit" ? state.buyerPhoneNo : state.sellerPhoneNo,
+    };
+
+    if (selectedType === "Credit") {
       dispatch({
         type: "SET_FIELDS",
         payload: {
           sellerName: mamaJiDetails.name,
           sellerAddress: mamaJiDetails.address,
           sellerPhoneNo: mamaJiDetails.phoneNo,
-        },
-      });
-    } else if (state.billType === "Debit") {
-      dispatch({
-        type: "SET_FIELDS",
-        payload: {
-          buyerName: mamaJiDetails.name,
-          buyerAddress: mamaJiDetails.address,
-          buyerPhoneNo: mamaJiDetails.phoneNo,
+          buyerName: userData.name,
+          buyerAddress: userData.address,
+          buyerPhoneNo: userData.phoneNo,
         },
       });
     }
 
-    handleSaveBill();
+    if (selectedType === "Credit") {
+      dispatch({
+        type: "SET_FIELDS",
+        payload: {
+          sellerName: mamaJiDetails.name,
+          sellerAddress: mamaJiDetails.address,
+          sellerPhoneNo: mamaJiDetails.phoneNo,
+          buyerName: userData.name,
+          buyerAddress: userData.address,
+          buyerPhoneNo: userData.phoneNo,
+        },
+      });
+    }
   }
 
-  async function handleSaveBill() {
+  async function saveBillToDB(finalBill) {
     try {
-      // Save to Bill + Bill_items table in the database
-
+      // Save to Bill + Bill_items table in the database (then updates the inventory table using handleUpdateInventory fn)
       const { data: billDataRes, error: billDataError } = await supabase
         .from("bills")
         .insert([
           {
-            bill_type: state.billType,
-            buyer_name: state.buyerName,
-            buyer_address: state.buyerAddress,
-            buyer_phone_no: state.buyerPhoneNo,
+            bill_type: finalBill.buyerName,
+            buyer_name: finalBill.buyerName,
+            buyer_address: finalBill.buyerAddress,
+            buyer_phone_no: finalBill.buyerPhoneNo,
 
-            seller_name: state.sellerName,
-            seller_address: state.sellerAddress,
-            seller_phone_no: state.sellerPhoneNo,
+            seller_name: finalBill.sellerName,
+            seller_address: finalBill.sellerAddress,
+            seller_phone_no: finalBill.sellerPhoneNo,
 
-            cgst: state.cgst,
-            sgst: state.sgst,
+            cgst: finalBill.cgst,
+            sgst: finalBill.sgst,
           },
         ])
         .select();
 
       if (billDataError)
-        throw "error while saving in Bill Table (Generate Bill,  line no 95)";
+        throw "error while saving in Bill Table (at bill details )";
 
       console.log("SuccessFully Saved Bill", billDataRes);
 
@@ -88,36 +233,73 @@ export function BillDetails() {
         };
       });
 
-      console.log(itemsToSave);
-
       const { data: billItemsData, error: BillItemsError } = await supabase
         .from("bill_items")
         .insert(itemsToSave)
         .select();
 
-      console.log(billItemsData, BillItemsError);
-
       if (BillItemsError)
-        throw "Error while Saving in  Bill items Table, generateBill.jsx at line no 105 ";
+        throw "Error while Saving in  Bill items Table (at bill details ) ";
 
       console.log("SuccessFully Saved Bill items ", billItemsData);
 
-      // setting input fields to their initial values.
-      // dispatch({
-      //   type: "SET_FIELDS",
-      //   payload: {
-      //     billType: "Credit",
-      //     buyerName: "",
-      //     buyerAddress: "",
-      //     buyerPhoneNo: "",
-      //     sellerName: "",
-      //     sellerAddress: "",
-      //     sellerPhoneNo: "",
-      //     cgst: "",
-      //     sgst: "",
-      //     billItems: [],
-      // },
-      // });
+      // Updates the inventory if everything goes right.
+      await handleUpdateInventory(billItemsData);
+
+      // create a snapshot of the saved bill for invoice display
+      const snapshot = {
+        billId: billDataRes[0].id,
+        billType: finalBill.billType,
+        buyerName: finalBill.buyerName,
+        buyerAddress: finalBill.buyerAddress,
+        buyerPhoneNo: finalBill.buyerPhoneNo,
+        sellerName: finalBill.sellerName,
+        sellerAddress: finalBill.sellerAddress,
+        sellerPhoneNo: finalBill.sellerPhoneNo,
+        cgst: finalBill.cgst,
+        sgst: finalBill.sgst,
+        billItems: billItemsData,
+      };
+
+      // set the snapshot in context, show invoice, and clear the editable form fields
+      dispatch({ type: "SET_SNAPSHOT", payload: snapshot });
+      dispatch({ type: "SET_FIELDS", payload: { showBill: true } });
+      // clear form fields so the user gets a fresh form when they come back
+      dispatch({
+        type: "SET_FIELDS",
+        payload: {
+          billType: "Credit",
+          buyerName: "",
+          buyerAddress: "",
+          buyerPhoneNo: "",
+          sellerName: "",
+          sellerAddress: "",
+          sellerPhoneNo: "",
+          cgst: "",
+          sgst: "",
+          billItems: [],
+        },
+      });
+
+      // commented this coz the invoiceFormat needs the current state to in the bill (will see in future if i can get data from db by passing id, it will be costly so will see)
+      /*
+      setting input fields to their initial values.
+      dispatch({
+        type: "SET_FIELDS",
+        payload: {
+          billType: "Credit",
+          buyerName: "",
+          buyerAddress: "",
+          buyerPhoneNo: "",
+          sellerName: "",
+          sellerAddress: "",
+          sellerPhoneNo: "",
+          cgst: "",
+          sgst: "",
+          billItems: [],
+      },
+      });
+      */
     } catch (err) {
       console.error(err);
     }
@@ -132,14 +314,9 @@ export function BillDetails() {
             <span>Bill Type</span>
             <select
               className="formEl"
-              style={{}}
+              id="selectEl"
               value={state.billType}
-              onChange={(e) =>
-                dispatch({
-                  type: "SET_FIELDS",
-                  payload: { billType: e.target.value },
-                })
-              }
+              onChange={(e) => handleBillTypeChange(e.target.value)}
               name="billType"
             >
               <option className="optionEl" value="Credit">
@@ -280,8 +457,12 @@ export function BillDetails() {
           </div>
         </div>
 
-        <button type="submit" className="submitBtn">
-          Generate Bill
+        <button
+          type="submit"
+          className={`submitBtn ${state.isSubmitting ? "btn-disabled" : ""}`}
+          disabled={state.isSubmitting}
+        >
+          {state.isSubmitting ? "Generating..." : "Generate Bill"}
         </button>
       </form>
       <button
