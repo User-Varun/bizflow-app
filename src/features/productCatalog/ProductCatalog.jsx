@@ -1,7 +1,7 @@
 import "../styles/productCatalog.css";
 import { useEffect, useState } from "react";
 import supabase from "../../services/supabaseClient";
-import { SearchBar } from "../ui/searchBar";
+import { SearchBar } from "../ui/SearchBar";
 import { ProductCard } from "../ui/ProductCard";
 
 export function ProductCatalog() {
@@ -21,8 +21,7 @@ export function ProductCatalog() {
   const [itemQty, setItemQty] = useState(0);
 
   // search query
-  const [searchQuery , setSearchQuery ] = useState('')
-
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -183,18 +182,21 @@ export function ProductCatalog() {
         </div>
       )}
 
-      <div id='innerHeader' >
-
-      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} widthInPercent={70} />
-      <button className="prodCBtn" onClick={toggleForm}>+ Add Product</button>
+      <div id="innerHeader">
+        <SearchBar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          widthInPercent={70}
+        />
+        <button className="prodCBtn" onClick={toggleForm}>
+          + Add Product
+        </button>
       </div>
 
       <section id="productCatalogContainer">
         {data.length > 0 ? (
           data.map((res) => {
-            return (
-              <ProductCard  res={res} key={res.id || res.name} />
-            );
+            return <ProductCard res={res} key={res.id || res.name} />;
           })
         ) : (
           <h1>No products!</h1>

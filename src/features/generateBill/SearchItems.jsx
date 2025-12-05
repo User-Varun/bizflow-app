@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import "../styles/generateBillStyles/searchItems.css";
 import supabase from "../../services/supabaseClient";
-import { SearchBar } from "../ui/searchBar";
+import { SearchBar } from "../ui/SearchBar";
 import { BillCardItem } from "../ui/BillCardItem";
 import { useSearchItems } from "./hooks/useSearchItems";
 

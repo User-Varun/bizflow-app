@@ -1,7 +1,7 @@
 import { createBrowserRouter, Outlet } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
-import { Navbar } from "./features/ui/navbar";
+import { Navbar } from "./features/ui/Navbar";
 import { Dashboard } from "./features/dashBoard/Dashboard";
 import { Inventory } from "./features/inventory/Inventory";
 import { ProductCatalog } from "./features/productCatalog/ProductCatalog";
